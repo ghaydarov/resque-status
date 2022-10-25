@@ -96,6 +96,10 @@ module Resque
           mget(ids).compact || []
         end
 
+        def self.activejob_statuses
+          redis.keys("activejob:status*").filter_map { |key|  ::ActiveJob::Status.get(key.split(":").last)}
+        end
+
         # Return the <tt>num</tt> most recent status/job UUIDs in reverse chronological order.
         def self.status_ids(range_start = nil, range_end = nil)
           if range_end && range_start
