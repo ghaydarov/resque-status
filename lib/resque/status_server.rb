@@ -1,5 +1,6 @@
 require 'resque/server'
 require 'resque-status'
+require "activejob-status"
 
 module Resque
   module StatusServer
@@ -13,6 +14,7 @@ module Resque
         @start = params[:start].to_i
         @end = @start + (params[:per_page] || per_page) - 1
         @statuses = Resque::Plugins::Status::Hash.statuses(@start, @end)
+        @activejob_statuses = redis.keys("activejob:status*").filter_map { |key|  ::ActiveJob::Status.get(key.split(":").last)}
         @size = Resque::Plugins::Status::Hash.count
         status_view(:statuses)
       end
